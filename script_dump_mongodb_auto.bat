@@ -74,3 +74,7 @@ echo.
 rmdir "%mongo_dump%" /s /q
 
 echo.
+
+echo Compression effectuées avec succes !
+
+echo.
