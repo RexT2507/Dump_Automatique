@@ -40,6 +40,7 @@ echo Patientez...
 
 echo.
 
+:: PENSEZ A MODIFIER LE CHEMIN VERS LE BIN DE VOTRE DOSSIER MONGO
 mongodump --db %saisie% --out "C:\Program Files\MongoDB\Server\4.0\bin\dump\%mongo_dump%"
 
 echo.
@@ -47,6 +48,7 @@ echo.
 :: On écrit sur le terminal
 echo Le dossier %mongo_dump% a été créé à %TIME% par %USERNAME%
 
+:: PENSEZ A MODIFIER LE CHEMIN VERS LE BIN DE VOTRE DOSSIER MONGO
 cd "C:\Program Files\MongoDB\Server\4.0\bin\dump\%mongo_dump%"
 
 :: On écrit dans le fichier log
@@ -90,6 +92,7 @@ if /I "%rep%" EQU "O" (
 
     Call :bare_chargement
 
+    :: PENSEZ A MODIFIER LE CHEMIN VERS LE BIN DE VOTRE DOSSIER MONGO
     forfiles -p "C:\Program Files\MongoDB\Server\4.0\bin\dump" -s -m *. -d 7 -c "cmd /c del @path"
 )
 
