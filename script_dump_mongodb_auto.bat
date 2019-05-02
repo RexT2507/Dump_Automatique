@@ -45,6 +45,7 @@ echo Patientez...
 
 echo.
 
+:: PENSEZ A MODIFIER LE CHEMIN VERS LE BIN DE VOTRE DOSSIER MONGO
 mongodump --db %saisie% --out "C:\Program Files\MongoDB\Server\4.0\bin\dump\%mongo_dump%"
 
 echo.
@@ -69,6 +70,7 @@ Call :bare_chargement
 
 echo.
 
+:: PENSEZ A MODIFIER LE CHEMIN VERS LE BIN DE VOTRE DOSSIER MONGO
 "C:\Program Files\7-Zip\7z.exe" a -tzip "%mongo_dump%.zip" "%mongo_dump%""
 
 rmdir "%mongo_dump%" /s /q
@@ -95,6 +97,7 @@ if /I "%rep%" EQU "O" (
 
     Call :bare_chargement
 
+    :: PENSEZ A MODIFIER LE CHEMIN VERS LE BIN DE VOTRE DOSSIER MONGO
     forfiles -p "C:\Program Files\MongoDB\Server\4.0\bin\dump" -s -m *. -d 7 -c "cmd /c del @path"
 )
 
