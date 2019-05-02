@@ -99,3 +99,39 @@ if /I "%rep%" EQU "O" (
 )
 
 echo.
+
+:: Fonction de création de barre de chargement
+:bare_chargement
+
+    setlocal enableDelayedExpansion
+    for /l %%I in (1,1,50) do (
+
+        cls
+
+        set progres=
+
+        set upprogres=
+
+        set downprogres=
+
+        set /a barre=%%I*2
+
+        for /l %%A in (1,1,%%I) do (
+
+            set upprogres=!upprogres!-
+
+            set progres=!progres!#
+            
+            set downprogres=!downprogres!-
+        )
+
+        echo !upprogres!
+
+        echo !progres! !barre!%
+
+        echo !downprogres!
+
+        ping localhost -n 1>nul
+    )
+
+EXIT /B 0
