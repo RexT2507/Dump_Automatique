@@ -52,3 +52,22 @@ cd "C:\Program Files\MongoDB\Server\4.0\bin\dump\%mongo_dump%"
 :: On écrit dans le fichier log
 echo Le dossier %mongo_dump% a été créé à %TIME% par %USERNAME% > log_de_création_%mongo_dump%.txt
 
+echo.
+
+cd ..
+
+echo Compression du fichier en cours....
+
+ping 127.0.0.1 -n 3 > nul
+
+Call :bare_chargement
+
+echo.
+
+"c:\Program Files\7-Zip\7z.exe" a -tzip "%mongo_dump%.zip" "%mongo_dump%""
+
+rmdir "%mongo_dump%" /s /q
+
+echo.
+
+echo Compression effectuées avec succés !
