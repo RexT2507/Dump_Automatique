@@ -33,3 +33,44 @@ set mongo_dump=%saisie%_%DATE%_%TIME%
 set mongo_dump=%mongo_dump:/=_%
 :: On remplace les : de DATE par des _
 set mongo_dump=%mongo_dump::=_%
+
+:: On lance la commande mongodump
+echo Démarrage du backup de %mongo_dump%....
+
+Call :bare_chargement
+
+echo.
+
+echo Patientez...
+
+echo.
+
+mongodump --db %saisie% --out "C:\Program Files\MongoDB\Server\4.0\bin\dump\%mongo_dump%"
+
+echo.
+
+:: on écrit sur le terminal
+echo Le dossier %mongo_dump% à été crée à %TIME% par %USERNAME%
+
+cd "C:\Program Files\MongoDB\Server\4.0\bin\dump\%mongo_dump%"
+
+:: on écrit dans le fichier log
+echo Le dossier %mongo_dump% à été crée à %TIME% par %USERNAME% > log_de_creation_%mongo_dump%.txt
+
+echo.
+
+cd ..
+
+echo Compression du fichier en cours....
+
+ping 127.0.0.1 -n 3 > nul
+
+Call :bare_chargement
+
+echo.
+
+"C:\Program Files\7-Zip\7z.exe" a -tzip "%mongo_dump%.zip" "%mongo_dump%""
+
+rmdir "%mongo_dump%" /s /q
+
+echo.
