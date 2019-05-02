@@ -71,3 +71,31 @@ rmdir "%mongo_dump%" /s /q
 echo.
 
 echo Compression effectuées avec succés !
+
+echo.
+
+echo Suppression des dump les plus anciens
+
+echo.
+
+set /p rep= Voulez vous effecuer la suppression (O/N)
+
+if /I "%rep%" EQU "O" (
+
+    echo.
+
+    echo Suppression en cours.....
+
+    ping 127.0.0.1 -n 3 > nul
+
+    Call :bare_chargement
+
+    forfiles -p "C:\Program Files\MongoDB\Server\4.0\bin\dump" -s -m *. -d 7 -c "cmd /c del @path"
+)
+
+echo.
+
+echo Appuyez sur Echap pour fermer le script
+
+:: Met en pause le programme
+pause > nul
