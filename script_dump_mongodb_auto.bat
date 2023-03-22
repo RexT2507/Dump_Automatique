@@ -1,43 +1,33 @@
-:: cache toutes les lignes de commande qui sont effectuées lors de l'exécution du programme
 @echo off
 
-:: donne un nom à son programme
 title Script de sauvegarde MongoDB
 
-:: Cache toutes les lignes de commande qui sont effectuées lors de l'exécution du programme
-mode con cols=100 lines=20
-
-:: Permet l'encodage en UTF8 ATTENTION NE MARCHE QUE SUR WINDOWS 10
 chcp 65001
 
-:: change la couleur de la console ainsi que du texte
-:: YX --> Y = fond X = texte
 color 1F
 
-@echo Lancement du script....
+set /p saisie=Entrez le nom de la base de données :
 
-echo. 
+set "DATE=%DATE:~6,4%%date:~3,2%%date:~0,2%"
+set "TIME=%TIME:~0,-3%"
 
-:: PENSEZ A REMPLACER LA CONSTANTE PAR LE NOM DE VOTRE DATABASE
-set saisie=votre_nom_de_database
+set "mongo_dump=%saisie%%DATE%%TIME%"
+set "mongo_dump=%mongo_dump:/=%"
+set "mongo_dump=%mongo_dump::=%"
+
+echo Lancement du script....
 
 echo.
 
-set DATE=%DATE:~6,4%_%date:~3,2%_%date:~0,2%
-set TIME=%TIME:~0,-3%
-
-:: On nomme le dossier de dump
-set mongo_dump=%saisie%_%DATE%_%TIME%
-
-:: On remplace les / de DATE par des _
-set mongo_dump=%mongo_dump:/=_%
-:: On remplace les : de DATE par des _
-set mongo_dump=%mongo_dump::=_%
-
-:: On lance la commande mongodump
 echo Démarrage du backup de %mongo_dump%....
 
-Call :bare_chargement
+setlocal enableDelayedExpansion
+for /l %%I in (1,1,50) do (
+cls
+set "progres=!progres!#"
+echo !progres!
+timeout /t 1 /nobreak >nul
+)
 
 echo.
 
@@ -45,96 +35,44 @@ echo Patientez...
 
 echo.
 
-:: PENSEZ A MODIFIER LE CHEMIN VERS LE BIN DE VOTRE DOSSIER MONGO
-mongodump --db %saisie% --out "C:\Program Files\MongoDB\Server\4.0\bin\dump\%mongo_dump%"
+mongodump --db %saisie% --out "C:\Program Files\MongoDB\Server\4.0\bin\dump%mongo_dump%"
 
 echo.
 
-:: on écrit sur le terminal
-echo Le dossier %mongo_dump% à été crée à %TIME% par %USERNAME%
-
-cd "C:\Program Files\MongoDB\Server\4.0\bin\dump\%mongo_dump%"
-
-:: on écrit dans le fichier log
-echo Le dossier %mongo_dump% à été crée à %TIME% par %USERNAME% > log_de_creation_%mongo_dump%.txt
+echo Le dossier %mongo_dump% a été créé à %TIME% par %USERNAME%
 
 echo.
-
-cd ..
 
 echo Compression du fichier en cours....
 
-ping 127.0.0.1 -n 3 > nul
+timeout /t 3 /nobreak >nul
 
-Call :bare_chargement
+"C:\Program Files\7-Zip\7z.exe" a -tzip "%mongo_dump%.zip" "C:\Program Files\MongoDB\Server\4.0\bin\dump%mongo_dump%"
 
-echo.
-
-:: PENSEZ A MODIFIER LE CHEMIN VERS LE BIN DE VOTRE DOSSIER MONGO
-"C:\Program Files\7-Zip\7z.exe" a -tzip "%mongo_dump%.zip" "%mongo_dump%""
-
-rmdir "%mongo_dump%" /s /q
+rmdir "C:\Program Files\MongoDB\Server\4.0\bin\dump%mongo_dump%" /s /q
 
 echo.
 
-echo Compression effectuées avec succes !
+echo Compression effectuée avec succès !
 
 echo.
 
-echo Suppression des dump les plus anciens
+echo Suppression des dumps les plus anciens
 
 echo.
 
-set rep=O
+set /p rep=Supprimer les dumps qui datent de plus de 7 jours ? (O/N) :
 
 if /I "%rep%" EQU "O" (
-
-    echo.
-
-    echo Suppression en cours.....
-
-    ping 127.0.0.1 -n 3 > nul
-
-    Call :bare_chargement
-
-    :: PENSEZ A MODIFIER LE CHEMIN VERS LE BIN DE VOTRE DOSSIER MONGO
-    forfiles -p "C:\Program Files\MongoDB\Server\4.0\bin\dump" -s -m *. -d 7 -c "cmd /c del @path"
+echo.
+echo Suppression en cours.....
+timeout /t 3 /nobreak >nul
+del "C:\Program Files\MongoDB\Server\4.0\bin\dump*.zip" /q
+forfiles /p "C:\Program Files\MongoDB\Server\4.0\bin\dump" /s /m *.txt /d -7 /c "cmd /c del @path"
 )
 
 echo.
 
-:: Fonction de création de barre de chargement
-:bare_chargement
-
-    setlocal enableDelayedExpansion
-    for /l %%I in (1,1,50) do (
-
-        cls
-
-        set progres=
-
-        set upprogres=
-
-        set downprogres=
-
-        set /a barre=%%I*2
-
-        for /l %%A in (1,1,%%I) do (
-
-            set upprogres=!upprogres!-
-
-            set progres=!progres!#
-            
-            set downprogres=!downprogres!-
-        )
-
-        echo !upprogres!
-
-        echo !progres! !barre!%
-
-        echo !downprogres!
-
-        ping localhost -n 1>nul
-    )
+pause
 
 EXIT /B 0

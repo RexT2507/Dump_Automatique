@@ -1,3 +1,4 @@
+@echo off
 :: Cache toutes les lignes de commande qui sont effectuées lors de l'exécution du programme
 @echo off
 
@@ -18,19 +19,19 @@ color 1F
 
 echo.
 
-:: On saisie le nom de la database qu'on veut dump
-set /p saisie= Saisissez le nom de votre database Mongo
+:: Demande à l'utilisateur de saisir le nom de la base de données à sauvegarder
+set /p db_name=Entrez le nom de la base de données à sauvegarder : 
 
 echo.
 
 :: On nomme le dossier de dump
-set mongo_dump=%saisie%_%DATE%
-
-:: On remplace les / de DATE par des _
-set mongo_dump=%mongo_dump:/=_%
+set "date_time=%DATE:~6,4%-%date:~3,2%-%date:~0,2%_%TIME:~0,-3%"
+set "dump_folder=%db_name%_%date_time%"
+set "dump_folder=%dump_folder:/=_%"
+set "dump_folder=%dump_folder::=_%"
 
 :: On lance la commande mongodump
-echo Démarrage du backup de %mongo_dump%....
+echo Démarrage du backup de %dump_folder%....
 
 Call :bare_chargement
 
@@ -41,18 +42,24 @@ echo Patientez...
 echo.
 
 :: PENSEZ A MODIFIER LE CHEMIN VERS LE BIN DE VOTRE DOSSIER MONGO
-mongodump --db %saisie% --out "C:\Program Files\MongoDB\Server\4.0\bin\dump\%mongo_dump%"
+mongodump --db "%db_name%" --out "C:\Program Files\MongoDB\Server\4.0\bin\dump\%dump_folder%"
+
+if not errorlevel 0 (
+    echo Erreur lors de la sauvegarde de la base de données %db_name%.
+    echo Vérifiez que la base de données existe et que vous avez les permissions nécessaires pour effectuer la sauvegarde.
+    goto :error
+)
 
 echo.
 
 :: On écrit sur le terminal
-echo Le dossier %mongo_dump% a été créé à %TIME% par %USERNAME%
+echo Le dossier %dump_folder% a été créé à %TIME% par %USERNAME%
 
 :: PENSEZ A MODIFIER LE CHEMIN VERS LE BIN DE VOTRE DOSSIER MONGO
-cd "C:\Program Files\MongoDB\Server\4.0\bin\dump\%mongo_dump%"
+cd "C:\Program Files\MongoDB\Server\4.0\bin\dump\%dump_folder%"
 
 :: On écrit dans le fichier log
-echo Le dossier %mongo_dump% a été créé à %TIME% par %USERNAME% > log_de_création_%mongo_dump%.txt
+echo Le dossier %dump_folder% a été créé à %TIME% par %USERNAME% > log_de_création_%dump_folder%.txt
 
 echo.
 
@@ -60,81 +67,4 @@ cd ..
 
 echo Compression du fichier en cours....
 
-ping 127.0.0.1 -n 3 > nul
-
-Call :bare_chargement
-
-echo.
-
-"c:\Program Files\7-Zip\7z.exe" a -tzip "%mongo_dump%.zip" "%mongo_dump%""
-
-rmdir "%mongo_dump%" /s /q
-
-echo.
-
-echo Compression effectuées avec succés !
-
-echo.
-
-echo Suppression des dump les plus anciens
-
-echo.
-
-set /p rep= Voulez vous effecuer la suppression (O/N)
-
-if /I "%rep%" EQU "O" (
-
-    echo.
-
-    echo Suppression en cours.....
-
-    ping 127.0.0.1 -n 3 > nul
-
-    Call :bare_chargement
-
-    :: PENSEZ A MODIFIER LE CHEMIN VERS LE BIN DE VOTRE DOSSIER MONGO
-    forfiles -p "C:\Program Files\MongoDB\Server\4.0\bin\dump" -s -m *. -d 7 -c "cmd /c del @path"
-)
-
-echo.
-
-echo Appuyez sur Echap pour fermer le script
-
-:: Met en pause le programme
-pause > nul
-
-:: Fonction de création de barre de chargement
-:bare_chargement
-
-    setlocal enableDelayedExpansion
-    for /l %%I in (1,1,50) do (
-
-        cls
-
-        set progres=
-
-        set upprogres=
-
-        set downprogres=
-
-        set /a barre=%%I*2
-
-        for /l %%A in (1,1,%%I) do (
-
-            set upprogres=!upprogres!-
-
-            set progres=!progres!#
-            
-            set downprogres=!downprogres!-
-        )
-
-        echo !upprogres!
-
-        echo !progres! !barre!%
-
-        echo !downprogres!
-
-        ping localhost -n 1>nul
-    )
-
-EXIT /B 0
+ping 127.0.0.1 -n 3 > n
